@@ -2,7 +2,7 @@ node {
     stage('Git Clone') {
         git 'https://github.com/cit31/studentapp-code.git'
     }
-    stage('Check Downloaded Files') {
-        sh 'ls'
+    stage('Compile') {
+        sh 'mvn compile'
     }
 }
