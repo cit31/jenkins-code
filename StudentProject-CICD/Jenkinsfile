@@ -14,7 +14,7 @@ node {
         sh 'mvn package'
     }
     stage('Deploy') {
-        build job: 'Create_Instance_Ansible', parameters: [string(name: 'Hostname', value: 'studevapp01'), booleanParam(name: 'INSTANCE_RECREATE', value: true)]
+        build job: 'Create_Instance_Ansible', parameters: [string(name: 'Hostname', value: 'stu-dev-app01'), booleanParam(name: 'INSTANCE_RECREATE', value: true)]
         dir ('ANSIBLE') {
             git 'https://github.com/cit31/ansible.git'
         sh '''
