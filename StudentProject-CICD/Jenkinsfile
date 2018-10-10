@@ -1,6 +1,8 @@
 node {
     stage('Git Clone') {
-        git 'https://github.com/cit31/studentapp-code.git'
+        dir ('MAVEN') {
+            git 'https://github.com/cit31/studentapp-code.git'
+        }
     }
     stage('Compile') {
         sh 'mvn compile'
@@ -13,5 +15,11 @@ node {
     }
     stage('Deploy') {
         build job: 'Create_Instance_Ansible', parameters: [string(name: 'Hostname', value: 'studevapp01'), booleanParam(name: 'INSTANCE_RECREATE', value: true)]
+        dir ('ANSIBLE') {
+            git 'https://github.com/cit31/ansible.git'
+        sh '''
+ansible-playbook playbooks/deploy.yml
+'''
+        }
     }
 }
