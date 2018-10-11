@@ -30,4 +30,13 @@ ansible-playbook -i hosts playbooks/deploy.yml
 '''
         }
     }
+    stage('Selenium-Tests') {
+        dir ('SELENIUM') {
+            git 'https://github.com/cit31/selenium-sauce.git'
+            sh '''
+IPADDRESS=$(gcloud compute instances list | grep stu-dev-app01 | awk '{print $5}')
+sed -i -e "s/IPADDRESS/$IPADDRESS/" src/test/java/framework/CrudStudent.java
+mvn clean install "-Dremote=true" "-DseleniumGridURL=http://raghudevops31:f57a36cd-7b3f-4227-9452-64b6fb1bdf23@ondemand.saucelabs.com:80/wd/hub"
+'''
+    }
 }
