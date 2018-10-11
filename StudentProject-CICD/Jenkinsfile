@@ -5,20 +5,27 @@ node {
         }
     }
     stage('Compile') {
-        sh 'mvn compile'
+        dir ('MAVEN') {
+            sh 'mvn compile'
+        }
     }
     stage('Sonar-Cloud') {
-        sh 'mvn sonar:sonar   -Dsonar.projectKey=studentapp   -Dsonar.organization=carreerit-github   -Dsonar.host.url=https://sonarcloud.io   -Dsonar.login=3bdb39dc2936bfc7b8f62eac86ebcf26c89318e4'
+        dir ('MAVEN') {
+            sh 'mvn sonar:sonar   -Dsonar.projectKey=studentapp   -Dsonar.organization=carreerit-github   -Dsonar.host.url=https://sonarcloud.io   -Dsonar.login=3bdb39dc2936bfc7b8f62eac86ebcf26c89318e4'
+        }
     }
     stage('Packaging') {
-        sh 'mvn package'
+        dir ('MAVEN') {
+            sh 'mvn package'
+        }
     }
     stage('Deploy') {
         build job: 'Create_Instance_Ansible', parameters: [string(name: 'Hostname', value: 'stu-dev-app01'), booleanParam(name: 'INSTANCE_RECREATE', value: true)]
         dir ('ANSIBLE') {
             git 'https://github.com/cit31/ansible.git'
         sh '''
-ansible-playbook playbooks/deploy.yml
+export ANSIBLE_CONFIG=/var/lib/jenkins/ansible.cfg
+ansible-playbook -i hosts playbooks/deploy.yml
 '''
         }
     }
