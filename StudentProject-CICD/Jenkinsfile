@@ -40,4 +40,13 @@ mvn clean install "-Dremote=true" "-DseleniumGridURL=http://raghudevops31:f57a36
 '''
         }
     }
+    stage('API-Python-Tests') {
+        dir ('SELENIUM') {
+            git 'https://github.com/cit31/selenium-sauce.git'
+            sh '''
+IPADDRESS=$(gcloud compute instances list | grep stu-dev-app01 | awk '{print $5}')
+python scripts/api-test.py $IPADDRESS
+'''
+        }
+    }
 }
