@@ -6,17 +6,17 @@ node {
     }
     stage('Compile') {
         dir ('MAVEN') {
-            sh 'mvn compile'
+            sh 'mvn compile -DVERSIONNO=${VERSIONNO} -DVERSIONTYPE=RELEASE'
         }
     }
     stage('Sonar-Cloud') {
         dir ('MAVEN') {
-            sh 'mvn sonar:sonar   -Dsonar.projectKey=studentapp   -Dsonar.organization=carreerit-github   -Dsonar.host.url=https://sonarcloud.io   -Dsonar.login=3bdb39dc2936bfc7b8f62eac86ebcf26c89318e4'
+            sh 'mvn sonar:sonar -DVERSIONNO=${VERSIONNO} -DVERSIONTYPE=RELEASE -Dsonar.projectKey=studentapp   -Dsonar.organization=carreerit-github   -Dsonar.host.url=https://sonarcloud.io   -Dsonar.login=3bdb39dc2936bfc7b8f62eac86ebcf26c89318e4'
         }
     }
     stage('Packaging') {
         dir ('MAVEN') {
-            sh 'mvn package'
+            sh 'mvn package -DVERSIONNO=${VERSIONNO} -DVERSIONTYPE=RELEASE '
         }
     }
     stage('Deploy') {
@@ -37,7 +37,7 @@ ansible-playbook -i hosts playbooks/deploy.yml
 sleep 20
 IPADDRESS=$(gcloud compute instances list | grep stu-dev-app01 | awk '{print $5}')
 sed -i -e "s/IPADDRESS/$IPADDRESS/" src/test/java/framework/CrudStudent.java
-mvn clean install "-Dremote=true" "-DseleniumGridURL=http://raghudevops31:f57a36cd-7b3f-4227-9452-64b6fb1bdf23@ondemand.saucelabs.com:80/wd/hub"
+mvn clean install -DVERSIONNO=${VERSIONNO} -DVERSIONTYPE=RELEASE "-Dremote=true" "-DseleniumGridURL=http://raghudevops31:f57a36cd-7b3f-4227-9452-64b6fb1bdf23@ondemand.saucelabs.com:80/wd/hub"
 '''
         }
     }
@@ -47,6 +47,13 @@ mvn clean install "-Dremote=true" "-DseleniumGridURL=http://raghudevops31:f57a36
             sh '''
 IPADDRESS=$(gcloud compute instances list | grep stu-dev-app01 | awk '{print $5}')
 python scripts/api-test.py $IPADDRESS
+'''
+        }
+    }
+    stage('Upload Artifacts'){
+        dir ('MAVEN') {
+             sh '''
+mvn deploy -DVERSIONNO=${VERSIONNO} -DVERSIONTYPE=RELEASE
 '''
         }
     }
